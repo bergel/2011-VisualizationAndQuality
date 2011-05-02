@@ -1,0 +1,406 @@
+% % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\documentclass[runningheads]{llncs}
+%\documentclass[10pt,letterpaper]{article}
+%\documentclass{sig-alternate}
+
+
+% packages
+\usepackage{xspace}
+\usepackage{ifthen}
+\usepackage{amsbsy}
+\usepackage{amssymb}
+\usepackage{balance}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{needspace}
+\usepackage{microtype}
+\usepackage{bold-extra}
+
+% constants
+\newcommand{\Title}{On Visualization and Software Quality}
+\newcommand{\TitleShort}{\Title}
+\newcommand{\Authors}{Alexandre Bergel}
+\newcommand{\AuthorsShort}{A. Bergel}
+
+% references
+\usepackage[colorlinks]{hyperref}
+\usepackage[all]{hypcap}
+\setcounter{tocdepth}{2}
+\hypersetup{
+	colorlinks=true,
+	urlcolor=black,
+	linkcolor=black,
+	citecolor=black,
+	plainpages=false,
+	bookmarksopen=true,
+	pdfauthor={\Authors},
+	pdftitle={\Title}}
+
+\def\chapterautorefname{Chapter}
+\def\appendixautorefname{Appendix}
+\def\sectionautorefname{Section}
+\def\subsectionautorefname{Section}
+\def\figureautorefname{Figure}
+\def\tableautorefname{Table}
+\def\listingautorefname{Listing}
+
+% source code
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{listings}
+\definecolor{source}{gray}{0.9}
+\lstset{
+	language={},
+	% characters
+	tabsize=3,
+	upquote=true,
+	escapechar={!},
+	keepspaces=true,
+	breaklines=true,
+	alsoletter={\#:},
+	breakautoindent=true,
+	columns=fullflexible,
+	showstringspaces=false,
+	basicstyle=\footnotesize\sffamily,
+	% background
+	frame=single,
+    framerule=0pt,
+	backgroundcolor=\color{source},
+	% numbering
+	numbersep=5pt,
+	numberstyle=\tiny,
+	numberfirstline=true,
+	% captioning
+	captionpos=b,
+	% formatting (html)
+	moredelim=[is][\textbf]{<b>}{</b>},
+	moredelim=[is][\textit]{<i>}{</i>},
+	moredelim=[is][\color{red}\uwave]{<u>}{</u>},
+	moredelim=[is][\color{red}\sout]{<del>}{</del>},
+	moredelim=[is][\color{blue}\underline]{<ins>}{</ins>}}
+\newcommand{\ct}{\lstinline[backgroundcolor=\color{white},basicstyle=\footnotesize\ttfamily]}
+\newcommand{\lct}[1]{{\small\tt #1}}
+
+% tikz
+% \usepackage{tikz}
+% \usetikzlibrary{matrix}
+% \usetikzlibrary{arrows}
+% \usetikzlibrary{external}
+% \usetikzlibrary{positioning}
+% \usetikzlibrary{shapes.multipart}
+% 
+% \tikzset{
+% 	every picture/.style={semithick},
+% 	every text node part/.style={align=center}}
+
+% proof-reading
+\usepackage{xcolor}
+\usepackage[normalem]{ulem}
+\newcommand{\ra}{$\rightarrow$}
+\newcommand{\ugh}[1]{\textcolor{red}{\uwave{#1}}} % please rephrase
+\newcommand{\ins}[1]{\textcolor{blue}{\uline{#1}}} % please insert
+\newcommand{\del}[1]{\textcolor{red}{\sout{#1}}} % please delete
+\newcommand{\chg}[2]{\textcolor{red}{\sout{#1}}{\ra}\textcolor{blue}{\uline{#2}}} % please change
+\newcommand{\chk}[1]{\textcolor{ForestGreen}{#1}} % changed, please check
+
+% comments \nb{label}{color}{text}
+\newboolean{showcomments}
+\setboolean{showcomments}{true}
+\ifthenelse{\boolean{showcomments}}
+	{\newcommand{\nb}[3]{
+		{\colorbox{#2}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}
+		{\textcolor{#2}{\sf\small$\blacktriangleright$\textit{#3}$\blacktriangleleft$}}}
+	 \newcommand{\version}{\emph{\scriptsize$-$Id$-$}}}
+	{\newcommand{\nb}[2]{}
+	 \newcommand{\version}{}}
+\newcommand{\rev}[2]{\nb{Reviewer #1}{red}{#2}}
+\newcommand{\ab}[1]{\nb{Alexandre}{blue}{#1}}
+\newcommand{\vp}[1]{\nb{Vanessa}{orange}{#1}}
+
+% graphics: \fig{position}{percentage-width}{filename}{caption}
+\DeclareGraphicsExtensions{.png,.jpg,.pdf,.eps,.gif}
+\graphicspath{{figures/}}
+\newcommand{\fig}[4]{
+	\begin{figure}[#1]
+		\centering
+		\includegraphics[width=#2\textwidth]{#3}
+		\caption{\label{fig:#3}#4}
+	\end{figure}}
+\newcommand{\largefig}[4]{
+	\begin{figure*}[#1]
+		\centering
+		\includegraphics[width=#2\textwidth]{#3}
+		\caption{\label{fig:#3}#4}
+	\end{figure*}}
+
+% abbreviations
+\newcommand{\ie}{\emph{i.e.,}\xspace}
+\newcommand{\eg}{\emph{e.g.,}\xspace}
+\newcommand{\etc}{\emph{etc.}\xspace}
+\newcommand{\etal}{\emph{et al.}\xspace}
+
+% lists
+\newenvironment{bullets}[0]
+	{\begin{itemize}}
+	{\end{itemize}}
+
+\newcommand{\seclabel}[1]{\label{sec:#1}}
+\newcommand{\figlabel}[1]{\label{fig:#1}}
+\newcommand{\figref}[1]{Figure~\ref{fig:#1}}
+\newcommand{\secref}[1]{Section~\ref{sec:#1}}
+\newcommand{\tablabel}[1]{\label{tab:#1}}
+\newcommand{\tabref}[1]{Table~\ref{tab:#1}}
+
+
+\begin{document}
+
+\title{\Title}
+%\titlerunning{\TitleShort}
+
+\author{\Authors\\[3mm]
+Department of Computer Science (DCC),\\ University of Chile, Santiago, Chile\\[1 ex]
+} 
+%\authorrunning{\AuthorsShort}
+
+\maketitle
+
+
+\begin{abstract}
+\end{abstract}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Introduction}
+
+Large software cannot realistically be produced without anomalies. 
+
+Over the last 3 years, we have been involved in the development of a number of software programs. These programs have been developed in Pharo, an emerging programming language. Agile methods have been applied to their development, including pair programming, reviews by peers, test-driven development. 
+
+Beside using the standard development tools and frameworks for their production, we have constantly been assessing until how far standard tools help us to the problems we were facing. Visualizing software has proved successful in solving problems that could not be easily addressed without. This paper is about the experience we gained over the last 3 years.
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\section{Software Visualization}
+
+Textual and visual representations differ in effectiveness~\cite{Petr95a}. 
+Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Assessing test code coverage requires associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
+
+We use \emph{software visualization} in our context because visual displays allow the human brain to study multiple aspects of complex problems in parallel. Software visualization ``allows for a higher level of abstraction, a closer mapping to the problem domain''~\cite{Petr95a}. Ware emphasizes this point by stating ``Visualization provides an ability to comprehend huge amounts of data''~\cite{Ware00a}. 
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\section{Profiling Blueprint}
+
+In a pure object-oriented setting, computation is essentially performed through message sending between objects. The CPU time consumption is distributed along method executions. Assessing the runtime distribution along method invocations complements the structural assessment described in the previous section. To reflect this profiling along method invocations, we provide the \emph{behavioral distribution blueprint}~\cite{Berg10c}. \tabref{behavioralBlueprint} gives the specification of the figure.
+
+The goal of this blueprint is to assess runtime information alongside method call invocations. It is intended to find optimization opportunities which may be tackled with caching. In addition to the metrics such as the number of calls and execution time, we also show whether a given method returns constant values, and whether it is likely to perform a side effect or not. As shown later, this information is helpful to identify a class of bottlenecks related to caching opportunities.
+
+Classes do not appear on this blueprint; methods are represented by nodes and invocations by directed edges. The behavioral blueprint uses the two metrics described in the structural blueprint for the width and height of a method. In addition to the shape, node color indicates a property:
+\begin{itemize}
+\item the gray color indicates methods that return \ct{self}, the default return value. When no return value is specified in Pharo, the object receiver is returned. This corresponds to \ct{void} methods in a statically typed language. No result is expected from the method, strongly suggesting that the method operates via side effects.
+\item the yellow color (which appears as light gray on a black and white printout) indicates methods that are constant on their return value, this value being different from \ct{self}.
+\item other methods are white.
+\end{itemize}
+
+Keeping track of the returned value in such a way is one of the characteristics of this visualization that supports us in our goal of identifying a class of bottlenecks.
+
+A tree layout is used to order methods, with upper methods calling lower methods. We illustrates this blueprint on the \ct{MOGraphElement>>bounds} method that we previously identified as a candidate for optimization.\\
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|p{6cm}|}\hline
+\multicolumn{2}{|c|}{\emph{\textbf{Behavioral distribution blueprint}}}\\\hline\hline
+
+\emph{Scope}		& all methods directly or indirectly invoked for a given starting method\\\hline 
+\hline
+\emph{Edge}		& method invocation (upper methods invoke lower ones)\\ 
+\emph{Layout}		& tree layout\\ 
+\emph{Metric scale}	& linear (except for node width)\\
+\emph{Nodes}		& methods\\ \hline
+\hline
+\emph{Node color}	& gray: return always \texttt{self}; yellow: same return value per object receiver; white: remaining methods\\ %yellow: without side effect; \\
+\emph{Node height}	& total execution time \\
+\emph{Node width}	& number of executions (logarithmic scale)\\\hline 
+\hline
+\emph{Example} 	   & \figref{BehavioralBlueprintExample}\\\hline
+
+%\emph{Edge color}		& ... \\ \hline
+%\emph{Edge width}		& ... \\ \hline\hline
+\end{tabular}
+\end{center}
+\caption{Specification of the behavioral distribution blueprint.} \tablabel{behavioralBlueprint}
+\end{table}
+
+%\fig{}{0.8}{BehavioralBlueprintExample2}{Profiling behavioral blueprint}
+\fig{}{1.0}{ProfilingBlueprintEvolution}{Profiling behavioral blueprint}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%\section{Memory blueprint}
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Test Blueprint}
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|p{6cm}|}\hline
+\multicolumn{2}{|c|}{\emph{\textbf{Test blueprint}}}\\\hline\hline
+
+\emph{Scope}		& all classes for classes and class-scope for methods \\\hline 
+\hline
+\emph{Edge}		& inheritance between classes and invocation between methods (upper methods invoke lower ones)\\ 
+\emph{Layout}		& tree layout\\ 
+\emph{Metric scale}	& linear (except for node width)\\
+\emph{Nodes}		& big boxes are classes and inner smaller boxes are methods\\ \hline
+\hline
+\emph{Node color}	& green border: unit test or a test method; blue: abstract method; red: non covered method; gray intensity: amount of method invocation\\
+\emph{Node height}	& method height: cyclomatic complexity \\
+\emph{Node width}	& method width: number of different callers\\\hline 
+\hline
+\emph{Example} 	   & \figref{testBlueprint}\\\hline
+
+%\emph{Edge color}		& ... \\ \hline
+%\emph{Edge width}		& ... \\ \hline\hline
+\end{tabular}
+\end{center}
+\caption{Specification of the behavioral distribution blueprint.} \tablabel{behavioralBlueprint}
+\end{table}
+
+
+
+\fig{}{0.4}{testBlueprint}{Test blueprint description.}
+
+\paragraph{In a nutshell} Before applying Test Blueprint on a real world example, we first introduce the visualization on a contrived but representative example, given in \autoref{fig:testBlueprint}.
+
+Large boxes represents classes (\ct{C1}, \ct{C2} and \ct{T}). Inheritance is indicated with a connecting line between classes. Subclasses are below their superclass. \ct{C1} is the superclass of \ct{C2}. The superclass of \ct{T} is not part of the analysis. The green border class border indicates a unit test. By following the xUnit architecture~\cite{Beck03a}, a unit test is implemented as a class.
+
+Inner boxes represent methods. \ct{C1} defines five methods, \ct{a, b, c, d} and \ct{e}. \ct{C2} defines one method, \ct{f}, and \ct{T} has two test methods. Each method is represented as a small box, visually defined along fives dimensions:
+
+\begin{itemize}
+\item height is the cyclomatic complexity of the method~\cite{McCa76a}. As the method may take different paths at execution time, the higher the box will be (\eg Method \ct{b}).
+\item width is the number of different methods that call the method when running the tests. A wide method (\ct{f}) means the method has been executed by many different methods. A thin method (\ct{a}, \ct{b}, \ct{c}) means the method has been executed zero or few times.
+\item gray intensity reflects the number of times the method has been executed. A dark method (\ct{d}, \ct{f}) has been executed many times. A light-toned method (\ct{c}) has been executed a few times.
+\item a red border color (light gray on a B\&W printout) means the method has not been executed (\ct{a}, \ct{b}). A blue border indicates abstract methods. A green border indicates that the method is a test method, defined in a unit test. Note that a unit test may contain methods that are not test methods; utility methods for example.
+
+\item the call-flow on the \ct{self} variable is indicated with edges between methods. This happens if the body of \ct{a} contains the expression \ct{self d}, meaning that the message \ct{d} is sent to self. The methods \ct{a} calls \ct{d} on \ct{self}. The method \ct{b} calls \ct{d} and \ct{c} on \ct{self}. Note that we are focusing on the \emph{call-flow} instead of the \emph{control-flow}. The call-flow is scoped to the class. Call-flow is statically determined from the abstract syntax tree of the method. 
+
+Calling methods are located above the called methods (\eg \ct{a} is above \ct{d}). The case of cycle between methods is discussed later on (\secref{methodlayoutalgo}).
+\end{itemize}
+
+%%Example
+\paragraph{Example} Our effort to increase the test coverage and remove dead code in the layout class hierarchy is summarizing in \autoref{fig:AbstractLayoutEvolution}. The upper part shows the coverage of the hierarchy for Version 2.2 of Mondrian.  Only 11.68\% of the methods are executed when running the unit tests.
+
+\fig{}{1.0}{AbstractLayoutEvolution}{Increase of the test coverage for the abstract layout class hierarchy.}
+
+The below part is the blueprint obtained for Version 2.7 of Mondrian. This new version is the result of applying the enhancements described in this section. 87.60\% of the methods are executed by the unit tests. 
+
+%Reducing complexity
+\paragraph{Reducing complexity}
+
+The experiences we realized on Mondrian and Hapao did not solely consist in reworking and writing new unit tests. It also has given an opportunity to rethink of crucial parts of the software. Test blueprint is designed to efficiently augment test coverage. A class is visually represented as a set of interconnected methods. This representation conveys a realistic sense of the inner complexity. Reducing this complexity has also been the topic of our experiments.
+
+\largefig{}{1.0}{MOGraphElementEvolution}{Reduction of \ct{MOGraphElement} complexity.}
+
+Designing a graphical library is a difficult task in which the root of the graphical element class hierarchy is often bloated and complex\footnote{This is for example the case of the \ct{Morph} class hierarchy in Squeak\footnote{\url{http://www.oldenbuettel.de/squeak-doku/Morphic-Kernel/Morph.html}} and \ct{JComponent} in Swing~\cite{Berg05b}.}. Mondrian is not an exception. We have significantly reduced the complexity of \ct{MOGraphElement}, the root of the graphic class hierarchy. \autoref{fig:MOGraphElementEvolution} shows the evolution of \ct{MOGraphElement} from Version 2.10 and 2.17 of Mondrian. In the version 2.10, \ct{MOGraphElement} contains 143 methods and 18 variables (not represented in the test blueprint). In the last version of Mondrian, \ct{MOGraphElement} contains 101 methods and 12 instance variables. Dead code has been removed and many methods have been relocated in other classes of the hierarchy according to their responsibility.
+
+These operations were realized via the numerous actions available from the test blueprint produced by Hapao and from Pharo tools, accessible by right clicking either on a class or a method. 
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%\section{Dependency blueprint}
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Documentation Blueprint}
+
+Software documentation is commonly understood as any material support that describes software attributes. Documenting a software is a critical factor of success~\cite{Paul03a}. 
+Mondrian comes with a reasonable set of documents, including book chapters\footnote{\url{http://www.themoosebook.org/}}, tutorial\footnote{\url{http://www.moosetechnology.org/tools/mondrian}}, research papers~\cite{Meye06a,Lien07b} and mailing list archives. However, these documents are essentially for end users since they do not describe the internal of the software. Some technical discussions were realized via emails, however they lack organization and cannot really be considered as an internal documentation. 
+
+Mondrian is a large application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users.
+
+The \emph{documentation blueprint} aims at guiding the commenting effort. The intuition explored in this visualization is a method that is large and collaborating with many classes is a good candidate for being documenting.
+
+We have designed documentation blueprint along these lines. \tabref{documentationBlueprint} specifies the blueprint. The left-hand side of \figref{MOShapeDocumentationBlueprintEvolution} shows the shape hierarchy before our effort. Comments were nearly completely absent.
+
+We have undertaken a significant effort to document Mondrian. Version 2.78 contains 1,972 methods with 482 commented methods. The right-hand side of \figref{MOShapeDocumentationBlueprintEvolution} gives the blueprint for this version of the hierarchy.
+
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|l|p{6cm}|}\hline
+\multicolumn{2}{|c|}{\emph{\textbf{Documentation blueprint}}}\\\hline\hline
+
+\emph{Scope}		& all classes for classes and class-scope for methods \\\hline 
+\hline
+\emph{Edge}		& inheritance between classes (superclass above its subclasses)\\ 
+\emph{Layout}		& tree layout\\ 
+\emph{Metric scale}	& linear (except for node width)\\
+\emph{Nodes}		& big boxes are classes and inner smaller boxes are methods\\ \hline
+\hline
+\emph{Node color}	& red border: non commented class or method\\
+\emph{Node height}	& method height: number of lines of code \\
+\emph{Node width}	& method width: number of collaborating classes\\\hline 
+\hline
+\emph{Example} 	   & \figref{testBlueprint}\\\hline
+
+%\emph{Edge color}		& ... \\ \hline
+%\emph{Edge width}		& ... \\ \hline\hline
+\end{tabular}
+\end{center}
+\caption{Specification of the documentation blueprint.} \tablabel{documentationBlueprint}
+\end{table}
+
+\largefig{}{1.0}{MOShapeDocumentationBlueprintEvolution}{Documentation of the \ct{MOShape} class hierarchy.}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Dependency Blueprint}
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Success keys}
+
+In addition to the functional requirements of the visualization mentioned in \secref{requirements}, the effectivity of a test coverage tool depends on many factors. We have identified a number of usability requirements:
+
+\begin{itemize}
+\item \emph{Simple} -- Should help to easily make decisions and understand the analyzed software. %Covered parts have to be apparent from the uncovered ones without being subject to ambiguities.
+\item \emph{Intuitive} -- The tool and visualization has to be easy to remember requiring a minimum learning effort. This is an important requirement since a test code coverage may not be frequently used, therefore the context switch from code production to increasing the coverage has to be as cheap as possible. 
+\item \emph{Easy back and forth} -- Going from the coverage tool to the code edition has to be realized with as few clicks as possible. Going from the code edition to the coverage tool is subject to the same constraint. 
+\item \emph{Overhead} -- Identifying the code coverage implies profiling the test execution. A runtime execution overhead cannot be avoided. However, the overhead has to remain low to keep test coverage assessment an activity frequently performed. 
+\item \emph{Navigable} -- It has to be easy to navigate, especially for large software with a high number of classes, methods and relations between them.
+\item \emph{Scalable} -- The usability of the visualization should be scalable. A large visualization should remain snappy to render and to browse, even with a high number of classes and methods.
+\end{itemize}
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Visualizing with Mondrian}
+
+\paragraph{Scriptable}
+
+\paragraph{Pluggable visualization}
+
+\paragraph{Monitoring evolution} along software version and different execution
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+\section{Profiling}
+
+
+Spy framework.
+
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\section{Related Work}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+\section{Conclusion}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+{\small
+\bibliographystyle{plain}
+\bibliography{main}
+}
+\end{document}
+
