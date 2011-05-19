@@ -197,7 +197,7 @@ This article relates our experience when developing the Mondrian application, it
 Mondrian uses a fine grain version numbering schema: it comprises more than 500 successive different versions. This article is illustrated with a description of 11 versions of Mondrian.
 
 The article is outline as follows.
-\secref{profilingblueprint} describes the \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.352 and Version 1.341.
+\secref{profilingblueprint} describes the \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.341 and Version 1.352.
 \secref{testblueprint} describes the \emph{test blueprint}. The test coverage of the layout class hierarchy has increase for more than 20\% between Version 2.2 and Version 2.7.
 \secref{documentationblueprint} presents the \emph{documentation blueprint}. The amount of documented methods increased by 9\% between Version 2.70 and Version 2.78. 
 \secref{dependencyblueprint} presents the \emph{dependency blueprint}. The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89.
@@ -439,53 +439,70 @@ The proportion of bad dependencies per package has been reduced by 65\% between 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Retrospective}
 
+\fig{}{0.9}{Retrospective}{Number of added and open issues.}
+
+%Mondrian is an application on which several industrial and research projects are based on. 
+Issues found in Mondrian are tracked on a Google code website\footnote{\url{http://code.google.com/p/moose-technology/}}: each entry contains a summary of the issue, the date the issue was opened and closed.
+\figref{Retrospective} shows the number of added new issues on it (a) and the number of open issues (b).  
+It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. 
+
+However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place.
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Success keys}
-
-We have identified a number of usability requirements:
-
-\begin{itemize}
-\item \emph{Simple} -- Should help to easily make decisions and understand the analyzed software. %Covered parts have to be apparent from the uncovered ones without being subject to ambiguities.
-\item \emph{Intuitive} -- The tool and visualization has to be easy to remember requiring a minimum learning effort. This is an important requirement since a test code coverage may not be frequently used, therefore the context switch from code production to increasing the coverage has to be as cheap as possible. 
-\item \emph{Easy back and forth} -- Going from the coverage tool to the code edition has to be realized with as few clicks as possible. Going from the code edition to the coverage tool is subject to the same constraint. 
-\item \emph{Overhead} -- Identifying the code coverage implies profiling the test execution. A runtime execution overhead cannot be avoided. However, the overhead has to remain low to keep test coverage assessment an activity frequently performed. 
-\item \emph{Navigable} -- It has to be easy to navigate, especially for large software with a high number of classes, methods and relations between them.
-\item \emph{Scalable} -- The usability of the visualization should be scalable. A large visualization should remain snappy to render and to browse, even with a high number of classes and methods.
-\end{itemize}
-
-%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-
-\section{Software Visualization}
 
 Textual and visual representations differ in effectiveness~\cite{Petr95a}. 
 Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Understanding a program structure or execution requires associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
 
 We use \emph{software visualization} in our context because visual displays allow the human brain to study multiple aspects of complex problems in parallel. Software visualization ``allows for a higher level of abstraction, a closer mapping to the problem domain''~\cite{Petr95a}. Ware emphasizes this point by stating ``Visualization provides an ability to comprehend huge amounts of data''~\cite{Ware00a}. 
 
+Each of the four visualizations we have produced is implemented of an open-source tool.  %Kai implements Profiling Blueprint, Hapao implement Test Blueprint, Documentor implements Documentation Blueprint and Dependency Monitor implements Dependency Blueprint.
+We have identified a number of usability requirements for the visualization and tools we have produced:
+
+\begin{itemize}
+\item \emph{Simple} -- Giving the meaning of a visual representation is often a difficult for people to understand a visualization. Tools should help to easily make decisions and understand the analyzed software.
+
+\item \emph{Intuitive} -- The tool and visualization have to be easy to remember requiring a minimum learning effort. This is an important requirement since visualizations may not be frequently used, therefore the context switch from code production to code assessment has to be as cheap as possible. 
+
+\item \emph{Easy back and forth} -- Going from the visualization tool to the code edition has to be realized with as few clicks as possible. Going from the code edition to the coverage tool is subject to the same constraint. 
+
+\item \emph{Overhead} -- Our visualizations are based on profiling the unit test execution. An instrumentation has to be realized prior execution, which incurs a runtime execution overhead. The overhead has to remain low to keep test coverage assessment an activity frequently performed. 
+
+\item \emph{Navigable} -- Visualizations have to be easy to navigate, especially for large software with a high number of classes, methods and relations between them.
+
+\item \emph{Scalable} -- The visualization has to scale. A large visualization should remain snappy to render and to browse, even with a high number of classes and methods.
+\end{itemize}
+
+
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{Visualizing with Mondrian}
-
-\paragraph{Scriptable}
-
-\paragraph{Pluggable visualization}
-
-\paragraph{Monitoring evolution} along software version and different execution
-
-%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{Profiling}
-
-
-Spy framework.
-
+%\section{Visualizing with Mondrian}
+%
+%\paragraph{Scriptable}
+%
+%\paragraph{Pluggable visualization}
+%
+%\paragraph{Monitoring evolution} along software version and different execution
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+%\section{Profiling}
+%
+%Spy framework.
 
-\section{Related Work} \seclabel{relatedwork}
+
+%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
+
+%\section{Related Work} \seclabel{relatedwork}
+%
+%Software visualization is a research field that has emerged in 
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
 \section{Conclusion} \seclabel{conclusion}
+
+This article presents the major steps we went through at increasing the quality of Mondrian, a software large of more than 180 classes and 2,000 methods. We applied techniques of visualization to identify anomalies and monitor their removal. 
+The need for visualizations emerged from the limitation of current development tools. 
+Mondrian has become a stable software, in which features are continually added, while keeping the number of unresolved issues low.
+
 
 %\paragraph{Acknowledgment} We would like to thank all the people involved 
 %Walter Binder
