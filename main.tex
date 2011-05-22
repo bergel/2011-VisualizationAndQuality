@@ -190,25 +190,26 @@ This has been empirically verified by Sommerville~\cite{Somm00a} and Davis~\cite
 We believe that one of the reasons for this dramatic situation is the tools that we commonly use to build software. Most of them absolutely lack adequate abstraction to represent program structure and execution, keys to understand all the implications associated to a software. For example, source code is still considered as the universal medium from which static properties can be extracted from and runtime stack frame evolution remains the uncontested oracle for finding execution bottleneck. Unfortunately, this has not changed during the last few decades.
 
 % What's the consequence?
-We are involved in the development of several applications. Beside using the standard development tools and frameworks for their production, we have constantly been assessing until how far standard development tools help us to solve the problems we were facing. 
+We are involved in the development of several applications. We have constantly been assessing until how far standard development tools help us to solve the problems we were facing. 
 
-This article relates our experience when developing the Mondrian application, itself written in the Pharo programming language\footnote{\url{http://www.pharo-project.org}}. We present fours problems in which the standard Pharo development tools failed to adequately solve. This article presents four expressive high-level visual representations and relates the experience we have gained. Visualizing software has proved successful in solving problems that could not be easily addressed without.
+This article relates our experience when developing Mondrian, an application large of 180 classes and 2,000 methods, itself written in the Pharo programming language\footnote{\url{http://www.pharo-project.org}}. We present four problems in which the standard Pharo development tools fail to adequately solve. This article presents four expressive high-level visual representations and relates the experience we have gained. Visualizing software has proved successful in solving problems that could not be easily addressed without.
 
 Mondrian uses a fine grain version numbering schema: it comprises more than 500 successive different versions. This article is illustrated with a description of 11 versions of Mondrian.
 
 The article is outline as follows.
-\secref{profilingblueprint} describes the \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.341 and Version 1.352.
-\secref{testblueprint} describes the \emph{test blueprint}. The test coverage of the layout class hierarchy has increase for more than 20\% between Version 2.2 and Version 2.7.
+\secref{profilingblueprint} describes \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.341 and Version 1.352.
+\secref{testblueprint} describes \emph{test blueprint}. The test coverage of an essential class hierarchy has increased by more than 20\% between Version 2.2 and Version 2.7.
 \secref{documentationblueprint} presents the \emph{documentation blueprint}. The amount of documented methods increased by 9\% between Version 2.70 and Version 2.78. 
-\secref{dependencyblueprint} presents the \emph{dependency blueprint}. The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89.
+\secref{dependencyblueprint} presents the \emph{dependency blueprint}. The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89 by successive refactoring on the overall structure.
+\secref{lessonLearnt} relates the impact on the the number of reported issues and gives the lessons we have learnt.
 
-\secref{relatedwork} gives a brief overview of the related work.
+%\secref{relatedwork} gives a brief overview of the related work.
 \secref{conclusion} concludes and presents the future work.
 
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
-\section{Profiling Blueprint}\seclabel{profilingblueprint}
+\section{Profiling Behavioral Blueprint}\seclabel{profilingblueprint}
 
 In an object-oriented setting, computation is essentially performed by sending messages. The CPU time consumption is distributed along successive inter-object interactions. Removing an execution bottleneck is commonly achieved with two heuristics: (i) reducing the number of times a slow method is executed and (ii) making a slow method faster.
 
@@ -222,22 +223,23 @@ The standard profiler of Pharo is MessageTally~\cite{Berg11d}. MessageTally regu
    ...
 \end{lstlisting}
 
-This report was produced when we were facing a severe performance issue. The report produced by MessageTally is useful to assess where the CPU is spending time on, however, it was little help to identify opportunities for improvement in our situation. Finding a way to reduce these raw numbers represented a significant work.\\
+This report was produced when we were facing a severe performance issue. The report produced by MessageTally is useful to assess where the CPU is spending time on, however, it was little help to identify opportunities for improvement in our situation. 
 
 \fig{}{1.0}{ProfilingBlueprint}{Profiling behavioral blueprint}
 %\myparagraph{Solution}
-Indicating candidates for time execution improvement is the goal of \emph{profiling behavioral blueprint}~\cite{Berg10c}, a visual representation of CPU consumption (\figref{ProfilingBlueprint}). Elements are visually represented by contrasting execution metrics with functional property.
+Indicating candidates for time execution improvement is the goal of \emph{profiling behavioral blueprint}~\cite{Berg10c}, a visual representation of CPU consumption (\figref{ProfilingBlueprint}). Elements are visually represented by contrasting execution metrics with the presence of side-effects.
 
-The visualization assesses runtime information alongside method call invocations. In addition to the metrics such as the number of executions and execution time, we also show whether or not a given method returns constant values, and whether it is likely to perform a side effect or not. In our setting, this information is helpful to identify a class of bottlenecks related to caching opportunities.
+The visualization assesses runtime information alongside method call invocations. In addition to the metrics such as the number of executions and execution time, we also show if a given method returns constant values, and whether or not it performs a detectable side effect on the object receiver. In our setting, this information is helpful to identify a class of bottlenecks related to computation redundancy.
 
-Methods are represented by nodes and invocations by directed edges. In addition to the node size, node's color indicates a property:
+Methods are represented by nodes and invocations by directed edges. Method's height tells its execution time. Its width tells the number of times the method has been tested. In addition to the node size, node's color indicates a property:
 \begin{itemize}
 \item the dark gray color indicates that the method is likely to perform a side effect. 
-\item the yellow color indicates methods that are constant on their return value, this value being different from \ct{self}. %(which appears as light gray on a black and white printout)
+\item the yellow color indicates methods that are constant on their return value, and do not perform a side effect.
 \item other methods are white.
 \end{itemize}
 
-Keeping track of the returned value and side effect in such a way is one of the characteristics of this visualization that supports us in our goal of identifying a class of bottlenecks. A tree layout is used to order methods, with upper methods calling lower methods. 
+A tree layout is used to order methods, with upper methods calling lower methods.
+Keeping track of the returned value and side effect in such a way is one of the characteristics of this visualization that supports us in our goal of identifying a class of bottlenecks. 
 
 Optimization opportunities are addressed by introducing a memoization cache.
 Consider the method \ct{absoluteBounds} in the version 1.341 of Mondrian (left hand part of \figref{ProfilingBlueprint}). It is defined as:
@@ -255,9 +257,9 @@ MOGraphElement>>absoluteBounds
 	^ absoluteBoundsCache := self shape absoluteBoundsFor: self
 \end{lstlisting}
 
-After taking care of setting to nil the variable \ct{absoluteBoundsCache} when appropriate, the Mondrian benchmarks indicated a speed up of 43\%. This optimization has a ripple effect on other methods: \ct{A} is now taller, meaning that its relative execution time of the CPU has increased while \ct{B}, \ct{C} and \ct{D} have much smaller, indicating a shorter execution time. We then focused on removing a call from \ct{B} to \ct{C}, which results in Version 1.352. At that stage, no much optimization is possible without significantly changing the architecture of Mondrian.
+After taking care of resetting the cache (\ie setting to nil the variable \ct{absoluteBoundsCache}) when appropriate, the Mondrian benchmarks indicated a speed up of 43\%. This optimization has a ripple effect on other methods: \ct{A} is now taller, meaning that its relative execution time of the CPU has increased while \ct{B}, \ct{C} and \ct{D} have much smaller, indicating a shorter execution time. We then focused on removing a call from \ct{B} to \ct{C}, which results in Version 1.352. At that stage, no much optimization is possible without significantly changing the architecture of Mondrian.
 
-Profiling behavioral blueprint solves limitations of MessageTally. These limitations are not tied to the particular implementation of MessageTally. Sample-based profilers, including the state-of-the-Art such as XProf and JProfiler, suffer from the same shortcomings. 
+Profiling behavioral blueprint solves the limitation of MessageTally to identify redundant computation. These limitations are not tied to the particular implementation of MessageTally. Sample-based profilers, including the state-of-the-Art such as XProf and JProfiler, suffer from the same shortcomings. 
 
 
 %\begin{table}
@@ -320,28 +322,29 @@ Profiling behavioral blueprint solves limitations of MessageTally. These limitat
 %\end{table}
 %
 
-It is acknowledged that having better tests leads to a decreased in reported software failures and problems~\cite{Mock09a}. Having a strong set of unit tests for Mondrian is a major concern. Keeping a satisfactory level of coverage for the tests is a priority. Pharo supports a mechanism to identify the method executed by the tests. Though useful to know what are the components ignored by the tests, it does not give hint on how to increase the coverage. Sequentially going through each uncovered method and writing a new test is tedious, not scalable and extremely time consuming. The heuristics we employ for assessing the tests coverage is: (i) a complex or an highly used method requires particular a care when testing and (ii) testing a method that depends on many other methods is likely to have a ripple effect on the coverage.
+It is acknowledged that having better tests leads to a decreased in reported software failures and problems~\cite{Mock09a}. Having a strong set of unit tests for Mondrian is a major concern. Keeping a satisfactory level of coverage for the tests is a priority. Pharo supports a mechanism to identify the method executed by the tests. Though useful to know what are the components ignored by the tests, it does not give hint on how to increase the coverage. Sequentially going through each uncovered method and writing a new test for it is tedious, not scalable and extremely time consuming. The heuristics we employ for assessing the tests coverage is: (i) a complex or an highly used method requires particular a care when testing and (ii) testing a method that depends on many other methods is likely to have a ripple effect on the coverage.
 
 \emph{Test blueprint} is a visualization that aims at easily increasing unit test coverage by relating execution with complexity metrics. Visual patterns indicates which parts of a software are poorly and well tested (\figref{TestBlueprintEvolution}).
 
+We then increase the test coverage by writing tests for methods that are complex and depend on many other methods.
 
-Consider the example given in the lower part of \figref{TestBlueprintEvolution}. Large boxes represents classes (\ct{C1}, \ct{C2} and \ct{T}). Inheritance is indicated with a connecting line between classes. Subclasses are below their superclass. \ct{C1} is the superclass of \ct{C2}. The superclass of \ct{T} is not part of the analysis. The green border class border indicates a unit test. By following the xUnit architecture~\cite{Beck03a}, a unit test is implemented as a class.
+Consider the example given in the lower part of \figref{TestBlueprintEvolution}. Large boxes represents classes (\ct{C1}, \ct{C2}). Inheritance is indicated with a connecting line between classes. Subclasses are below their superclass. \ct{C1} is the superclass of \ct{C2}. The superclass of \ct{C1} is not part of the analysis.
 
-Inner boxes represent methods. \ct{C1} defines five methods, \ct{a, b, c, d} and \ct{e}. \ct{C2} defines one method, \ct{f}, and \ct{T} has two test methods. Each method is represented as a small box, visually defined along fives dimensions:
+Inner boxes represent methods. \ct{C1} defines four methods, \ct{a, b, c} and \ct {d}. \ct{C2} defines one method, \ct{f}. Each method is represented as a small box, visually defined along fives dimensions:
 
 \begin{itemize}
 \item height is the cyclomatic complexity of the method~\cite{McCa76a}. As the method may take different paths at execution time, the higher the box will be (\eg Method \ct{b}).
-\item width is the number of different methods that call the method when running the tests. A wide method (\ct{f}) means the method has been executed by many different methods. A thin method (\ct{a}, \ct{b}, \ct{c}) means the method has been executed zero or few times.
-\item gray intensity reflects the number of times the method has been executed. A dark method (\ct{d}, \ct{f}) has been executed many times. A light-toned method (\ct{c}) has been executed a few times.
-\item a red border color means the method has not been executed (\ct{a}, \ct{b}). A blue border indicates abstract methods. A green border indicates that the method is a test method, defined in a unit test. Note that a unit test may contain methods that are not test methods; utility methods for example. %(light gray on a B\&W printout)
-
+\item width is the number of different methods that call the method when running the tests. A wide method (\ct{f}) means the method is executed by many different methods. A thin method (\ct{a}, \ct{b}, \ct{c}) means the method has been executed zero or few times.
+\item gray intensity reflects the number of times the method is tested. A dark method (\ct{d}, \ct{f}) is tested many times. A light-toned method (\ct{c}) has been executed a few times.
+\item a red border color means the method is not tested (\ct{a}, \ct{b}). 
 \item the call-flow on the \ct{self} variable is indicated with edges between methods. This happens if the body of \ct{a} contains the expression \ct{self d}, meaning that the message \ct{d} is sent to self. The methods \ct{a} calls \ct{d} on \ct{self}. %The method \ct{b} calls \ct{d} and \ct{c} on \ct{self}. Note that we are focusing on the \emph{call-flow} instead of the \emph{control-flow}. The call-flow is scoped to the class. Call-flow is statically determined from the abstract syntax tree of the method. 
 Calling methods are located above the called methods (\eg \ct{a} is above \ct{d}).
 \end{itemize}
 
 %%Example
 %\myparagraph{Application to Mondrian} 
-Our effort to increase the test coverage and remove dead code in the layout class hierarchy is summarized in the above part of \figref{TestBlueprintEvolution}. The upper part shows the coverage of the hierarchy for Version 2.2 of Mondrian.  Only 73\% of the methods are executed when running the unit tests.
+The layout class hierarchy is an essential and central component of Mondrian.
+Our effort to increase the test coverage and remove dead code in the layout class hierarchy is summarized in the above part of \figref{TestBlueprintEvolution}. The upper part shows the coverage of the hierarchy of Version 2.2 of Mondrian.  Only 73\% of the methods are executed when running the unit tests.
 %Version 2.2
 % 21 methods, 1 red
 % 10 methods, 7 red
@@ -359,17 +362,17 @@ Our effort to increase the test coverage and remove dead code in the layout clas
 % 2, 1
 % 7, 1
 
-\fig{}{1.0}{TestBlueprintEvolution}{Increase of the test coverage for the abstract layout class hierarchy.}
+\fig{}{0.8}{TestBlueprintEvolution}{Increase of the test coverage of the layout class hierarchy.}
 
 The below part is the blueprint obtained for Version 2.7 of Mondrian. This new version is the result of applying the enhancements described in this section. 96\% of the methods are executed by the unit tests. \\
 
 %Reducing complexity
 %\myparagraph{Reducing complexity}
-The experience realized on Mondrian with \emph{test blueprint} did not solely consist in writing new unit tests. It also has given an opportunity to rethink crucial parts of the software. A class is visually represented as a set of interconnected methods. This representation conveys a realistic sense of the inner complexity. Reducing this complexity has also been the topic of our experiments.
+The experience realized on Mondrian with \emph{test blueprint} did not solely consist in writing new unit tests. It also has given an opportunity to rethink crucial parts of the software. A class is visually represented as a set of interconnected methods. This representation conveys an intuitive sense of the inner complexity. Reducing this complexity has also been the topic of our experiments.
 
 \largefig{}{1.0}{TestBlueprintComplexity}{Reduction of \ct{MOGraphElement} complexity.}
 
-Designing a graphical library such as Mondrian is a difficult task in which the root of the graphical element class hierarchy is often bloated and complex. Mondrian is not an exception. We have significantly reduced the complexity of the \ct{MOGraphElement} class, root of the core Mondrian class hierarchy. \figref{TestBlueprintComplexity} shows the evolution of \ct{MOGraphElement} from Version 2.10 and Version 2.17 of Mondrian. In the version 2.10, \ct{MOGraphElement} contains 143 methods and 18 variables (not represented in the test blueprint). In the last version of Mondrian, \ct{MOGraphElement} contains 101 methods and 12 instance variables. Dead code has been removed and many methods have been relocated in other classes of the hierarchy according to their responsibility.
+Designing a graphical library such as Mondrian is a difficult task in which the root of the graphical element class hierarchy is often bloated and complex. We have significantly reduced the complexity of the \ct{MOGraphElement} class, root of the core Mondrian class hierarchy. \figref{TestBlueprintComplexity} shows the evolution of \ct{MOGraphElement} from Version 2.10 and Version 2.17 of Mondrian. In the version 2.10, \ct{MOGraphElement} contains 143 methods and 18 variables (not represented in the test blueprint). In the last version of Mondrian, \ct{MOGraphElement} contains 101 methods and 12 instance variables. Dead code has been removed and many methods have been relocated in other classes of the hierarchy according to their responsibility.
 
 The importance of assessing and increasing code test coverage has been recognized according to the large number of available tools. We have compared test blueprint with \emph{all} the available test coverage tools, independently of the considered programming language. None of them provide the combination of metrics and visual patterns offered by test blueprint.
 
@@ -378,9 +381,11 @@ The importance of assessing and increasing code test coverage has been recognize
 \section{Documentation Blueprint}\seclabel{documentationblueprint}
 
 Software documentation is commonly understood as any material support that describes software attributes. Documenting a software is a critical factor of success when developing a software product~\cite{Paul03a}. 
-Mondrian comes with a reasonable set of documents, including book chapters\footnote{\url{http://www.themoosebook.org/}}, tutorials, research papers and mailing list archives. However, these documents are essentially for end users since they do not describe the internal of the software. Some technical discussions were realized via emails, however they lack organization and cannot really be considered as an internal documentation. 
+Mondrian comes with a reasonable set of documents, including book chapters, tutorials, research papers and mailing list archives. However, these documents are essentially for end users since they do not describe the internal of the software. Technical discussions were realized via emails, however they lack organization and cannot really be considered as an internal documentation. 
 
 Mondrian is a large application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users.
+
+Pharo does not come with a tool dedicate to comfortably write and browse code documentation. Using the standard tool to write code is the only way to read and write documentation as comment in the source code. The limitation of this way to document application code is the lack of global context. Not all methods have the same urgent necessity to be documented. Tools for code production cannot be effective used for code documentation: no indication is given on whether a method has to be documented in priority. 
 
 The \emph{documentation blueprint} aims at guiding the commenting effort. The heuristic explored in this visualization is: if a method has a complex definition and is collaborating with many classes then it is a good candidate for being documenting in priority.
 
@@ -420,43 +425,53 @@ We have undertaken a significant effort to document Mondrian. Version 2.78 conta
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Dependency Blueprint}\seclabel{dependencyblueprint}
 
-Mondrian is composed of 21 packages. Each of these 21 packages contains cohesive classes and depends on other packages. For example, graphical representations are defined in a dedicated package, itself depending on Mondrian core; packages containing the tests depends on all the packages that are effectively tested. Unfortunately, unwanted dependencies are difficult to clearly visualize.
+Mondrian is composed of more than 20 packages. Each of these packages contains cohesive classes and depends on other packages. For example, layout classes are defined in a dedicated package, itself depending on Mondrian core; packages containing the tests depends on all the packages that are effectively tested. Unfortunately, unwanted dependencies are difficult to clearly visualize.
 Dependencies are traditionally represented as a graph in which nodes are components and arrowed lines indicates dependencies\footnote{\eg \url{http://www.eclipse.org/pde/incubator/dependency-visualization}}. The problem with such a representation is its poor scalability. Over a few dozen edges it quickly gets the appearance of a home-made spaghetti dish~\cite{Tele10a}. 
 
-\emph{Dependency blueprint} is a visual representations of dependencies between software packages (\figref{DependencyBlueprint}). Each package is visually represented as a compound of 3 parts. Consider a compound representing a package $P$. The left-hand side of the compound contains the packages that depends on $P$. The center part of the compound is the package itself, represented as the result of 3 metrics: the number of depending classes; the number of dependent classes; the number of classes contained in the package. The right-hand side of the compound are the dependent packages. A dependent package that is not expected from the Mondrian architectural description is marked as red.
+\emph{Dependency blueprint} is a visual representations of dependencies between software packages (\figref{DependencyBlueprint}). Each package is visually represented as a compound of 3 parts. Consider a compound representing a package $P$. The left-hand side of the compound contains the packages that depends on $P$. For example, the packages $A$ and $B$ contain at least one class, itself containing one or more methods that reference a class or a method contained in $P$. The fact that Package $B$ depends on $P$ is confirm to the architecture specification of the considered application (not discussed here). The dependency $B$ to $P$ is not specified as indicated with the red color. This bad dependency is an anomaly.
+
+The center part of the compound is the package itself, represented as the result of 3 metrics: the number of depending classes (height); the number of dependent classes (width); the number of classes contained in the package (gray intensity). 
+
+The right-hand side of the compound are the dependent packages. A dependent package that is not expected from the Mondrian architectural description is marked as red. The Package $P$ contains at least one method that refer a method or a class contained in C.
 
 %110 wrong dependencies in Version 2.80. 22 good only
 % 46 wrong dependencies in Version 2.89. 26 good only
 
-The above part of \figref{DependencyBlueprint} shows the dependency blueprint for Version 2.80. It contains 132 dependencies in total, 110 of them are bad dependencies, meaning that they are not specified in the architectural description of Mondrian.  22 are good dependencies. Version 2.80 of Mondrian contains 22 packages. In the average, each package has 6 bad dependencies.
+The above part of \figref{DependencyBlueprint} shows the dependency blueprint for Version 2.80. It contains 132 dependencies in total, 110 of them are bad dependencies, meaning that they are not specified in the architectural description of Mondrian.  22 are good dependencies. Version 2.80 of Mondrian contains 22 packages. In the average, each package has 6 bad dependencies. 
 
 Version 2.89 is the result of a re-architectural effort. The number of bad dependencies has been reduced to 46. The number of good dependencies increased to 26. Version 2.89 contains 21 packages.  In the average, each package has 2.1 bad dependencies.
+
+As an example of a bad dependency, consider the method:
+
+\begin{lstlisting}
+MONode>>acceptVisitor: aVisitor	^ aVisitor visitNode: self
+\end{lstlisting}
+
+The class \ct{MONode} belongs to the \ct{Mondrian-Core} package. Visitors are packaged into \ct{Mondrian-Visitor}. By being defined in \ct{Mondrian-Core}, the method \ct{acceptVisitor:} creates a dependency toward \ct{Mondrian-Visitor} since it invokes \ct{visitNode:}, itself defined on the class \ct{MOVisitor}, which belongs to \ct{Mondrian-Visitor}. 
+
+Two different ways exists to remove this dependency. The class \ct{MOVisitor} can be simply moved into the core. Another solution is to use a particularity of Smalltalk. Pharo offers a element solution called a class extension. The method \ct{acceptVisitor:} is defined on the class \ct{MONode}, but it can be contained in the package \ct{Mondrian-Visitor}: \ct{acceptVisitor:} is an extension of of \ct{Mondrian-Visitor} made on \ct{Mondrian-Core}. We opted to that solution to remove the bad dependency.
 
 The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89.
 
 \largefig{}{1.23}{DependencyBlueprint}{Evolution of Mondrian dependencies.}
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{Retrospective}
+\section{Retrospective and Lesson Learnt} \seclabel{lessonLearnt}
 
 \fig{}{0.9}{Retrospective}{Number of added and open issues.}
 
 %Mondrian is an application on which several industrial and research projects are based on. 
-Issues found in Mondrian are tracked on a Google code website\footnote{\url{http://code.google.com/p/moose-technology/}}: each entry contains a summary of the issue, the date the issue was opened and closed.
-\figref{Retrospective} shows the number of added new issues on it (a) and the number of open issues (b).  
-It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. 
+Issues found in Mondrian are tracked on a Google code website\footnote{\url{http://code.google.com/p/moose-technology/}}: each entry contains a summary of the issue, the date the issue when it was opened and closed.
+\figref{Retrospective} shows the number of added new issues (a) and the number of open issues (b).  
 
-However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place.
-
-%: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
-\section{Success keys}
+It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place.
 
 Textual and visual representations differ in effectiveness~\cite{Petr95a}. 
-Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Understanding a program structure or execution requires associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
+Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Understanding a program structure or execution requires to associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
 
 We use \emph{software visualization} in our context because visual displays allow the human brain to study multiple aspects of complex problems in parallel. Software visualization ``allows for a higher level of abstraction, a closer mapping to the problem domain''~\cite{Petr95a}. Ware emphasizes this point by stating ``Visualization provides an ability to comprehend huge amounts of data''~\cite{Ware00a}. 
 
-Each of the four visualizations we have produced is implemented of an open-source tool.  %Kai implements Profiling Blueprint, Hapao implement Test Blueprint, Documentor implements Documentation Blueprint and Dependency Monitor implements Dependency Blueprint.
+Each of the four visualizations we have produced is implemented in an open-source tool.  %Kai implements Profiling Blueprint, Hapao implement Test Blueprint, Documentor implements Documentation Blueprint and Dependency Monitor implements Dependency Blueprint.
 We have identified a number of usability requirements for the visualization and tools we have produced:
 
 \begin{itemize}
