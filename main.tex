@@ -206,6 +206,9 @@ Mondrian uses a fine grain \sd{grained?} version numbering schema: it comprises 
 200 classes is nothing in terms of size?}
 \sd{what is the message to IEEE Software: idea: In this article we present based on anedoctal evidences that simple visualizations can drastically improve the performance of actions related to the general notion of software quality (speed, coverage...)}
 
+\sd{Contextual and adequate visualizations are the point of the paper.}
+\sd{Mondrian is just a use case. }\sd{In this article we show that with simple visualizations (based for example on Polymetric views) and some metrics it is possible to build tools that provide contextual and important feedback.}
+
 The article is outlined as follows.
 \secref{profilingblueprint} describes \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.341 and Version 1.352.
 \secref{testblueprint} describes \emph{test blueprint}. The test coverage of an essential class hierarchy has increased by more than 20\% between Version 2.2 and Version 2.7.
@@ -271,6 +274,8 @@ MOGraphElement>>absoluteBounds
 After taking care of resetting the cache (\ie setting to nil the variable \ct{absoluteBoundsCache}) when appropriate, the Mondrian benchmarks indicated a speed up of 43\%. This optimization has a ripple effect on other methods: \ct{A} is now taller, meaning that its relative execution time of the CPU has increased while \ct{B}, \ct{C} and \ct{D} have much smaller, indicating a shorter execution time. We then focused on removing a call from \ct{B} to \ct{C}, which results in Version 1.352. At that stage, no much optimization is possible without significantly changing the architecture of Mondrian.
 
 Profiling behavioral blueprint solves the limitation of MessageTally to identify redundant computation. These limitations are not tied to the particular implementation of MessageTally. Sample-based profilers, including the state-of-the-Art such as XProf and JProfiler, suffer from the same shortcomings. 
+\sd{this message should come earlier.}
+\sd{I imagine that most people will not read the code so what is the message?}
 
 
 %\begin{table}
@@ -337,7 +342,7 @@ It is acknowledged that having better tests leads to a decreased in reported sof
 
 \emph{Test blueprint} is a visualization that aims at easily increasing unit test coverage by relating execution with complexity metrics. Visual patterns indicates which parts of a software are poorly and well tested (\figref{TestBlueprintEvolution}).
 
-We then increase the test coverage by writing tests for methods that are complex and depend on many other methods.
+We then increase the test coverage by writing tests for methods that are complex and depend on many other methods. \sd{this sentence is a bit out of context}
 
 Consider the example given in the lower part of \figref{TestBlueprintEvolution}. Large boxes represents classes (\ct{C1}, \ct{C2}). Inheritance is indicated with a connecting line between classes. Subclasses are below their superclass. \ct{C1} is the superclass of \ct{C2}. The superclass of \ct{C1} is not part of the analysis.
 
@@ -355,7 +360,10 @@ Calling methods are located above the called methods (\eg \ct{a} is above \ct{d}
 %%Example
 %\myparagraph{Application to Mondrian} 
 The layout class hierarchy is an essential and central component of Mondrian.
-Our effort to increase the test coverage and remove dead code in the layout class hierarchy is summarized in the above part of \figref{TestBlueprintEvolution}. The upper part shows the coverage of the hierarchy of Version 2.2 of Mondrian.  Only 73\% of the methods are executed when running the unit tests.
+Our effort to increase the test coverage and remove dead code in the layout class hierarchy is summarized in the above part of \figref{TestBlueprintEvolution}. 
+
+\sd{the message of the paper cannot be that you did something on mondrian.
+}The upper part shows the coverage of the hierarchy of Version 2.2 of Mondrian.  Only 73\% of the methods are executed when running the unit tests.
 %Version 2.2
 % 21 methods, 1 red
 % 10 methods, 7 red
@@ -373,20 +381,23 @@ Our effort to increase the test coverage and remove dead code in the layout clas
 % 2, 1
 % 7, 1
 
-\fig{}{0.8}{TestBlueprintEvolution}{Increase of the test coverage of the layout class hierarchy.}
+\fig{}{0.8}{TestBlueprintEvolution}{Increase of the test coverage of the layout class hierarchy. \sd{no shadow} \sd{I do not see any green}}
 
 The below part is the blueprint obtained for Version 2.7 of Mondrian. This new version is the result of applying the enhancements described in this section. 96\% of the methods are executed by the unit tests. \\
 
 %Reducing complexity
 %\myparagraph{Reducing complexity}
-The experience realized on Mondrian with \emph{test blueprint} did not solely consist in writing new unit tests. It also has given an opportunity to rethink crucial parts of the software. A class is visually represented as a set of interconnected methods. This representation conveys an intuitive sense of the inner complexity. Reducing this complexity has also been the topic of our experiments.
+The experience realized on Mondrian with \emph{test blueprint} did not solely consist\sd{s} in writing new unit tests. It also has given an opportunity to rethink crucial parts of the software. A class is visually represented as a set of interconnected methods. This representation conveys an intuitive sense of the inner complexity. Reducing this complexity has also been the topic of our experiments.
 
 \largefig{}{1.0}{TestBlueprintComplexity}{Reduction of \ct{MOGraphElement} complexity.}
 
 Designing a graphical library such as Mondrian is a difficult task in which the root of the graphical element class hierarchy is often bloated and complex. We have significantly reduced the complexity of the \ct{MOGraphElement} class, root of the core Mondrian class hierarchy. \figref{TestBlueprintComplexity} shows the evolution of \ct{MOGraphElement} from Version 2.10 and Version 2.17 of Mondrian. In the version 2.10, \ct{MOGraphElement} contains 143 methods and 18 variables (not represented in the test blueprint). In the last version of Mondrian, \ct{MOGraphElement} contains 101 methods and 12 instance variables. Dead code has been removed and many methods have been relocated in other classes of the hierarchy according to their responsibility.
 
-The importance of assessing and increasing code test coverage has been recognized according to the large number of available tools. We have compared test blueprint with \emph{all} the available test coverage tools, independently of the considered programming language. None of them provide the combination of metrics and visual patterns offered by test blueprint.
+\sd{Nobody cares about the fact that Mondrian was, is or will be. They care that tools can be defined that are more adequate to their tasks.}
 
+The importance of assessing and increasing code test coverage has been recognized according to the large number of available tools. We have compared test blueprint with \emph{all} \sd{most of} the available test coverage tools, independently of the considered programming language. None of them provide the combination of metrics and visual patterns offered by test blueprint.
+
+\sd{the contextual and adequate feedback is present with a simple box and metrics}
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Documentation Blueprint}\seclabel{documentationblueprint}
@@ -394,7 +405,7 @@ The importance of assessing and increasing code test coverage has been recognize
 Software documentation is commonly understood as any material support that describes software attributes. Documenting a software is a critical factor of success when developing a software product~\cite{Paul03a}. 
 Mondrian comes with a reasonable set of documents, including book chapters, tutorials, research papers and mailing list archives. However, these documents are essentially for end users since they do not describe the internal of the software. Technical discussions were realized via emails, however they lack organization and cannot really be considered as an internal documentation. 
 
-Mondrian is a large application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users.
+Mondrian is a large \sd{no small} application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users.
 
 Pharo does not come with a tool dedicate to comfortably write and browse code documentation. Using the standard tool to write code is the only way to read and write documentation as comment in the source code. The limitation of this way to document application code is the lack of global context. Not all methods have the same urgent necessity to be documented. Tools for code production cannot be effective used for code documentation: no indication is given on whether a method has to be documented in priority. 
 
