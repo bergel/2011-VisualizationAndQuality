@@ -18,7 +18,8 @@
 \usepackage{bold-extra}
 
 % constants
-\newcommand{\Title}{On Visualization and Software Quality}
+%\newcommand{\Title}{On Visualization and Software Quality}
+\newcommand{\Title}{A Case for Visualization for Software Quality}
 \newcommand{\TitleShort}{\Title}
 \newcommand{\Authors}{Alexandre Bergel, St\'ephane Ducasse, Tudor G\^irba}
 \newcommand{\AuthorsShort}{A. Bergel}
@@ -116,7 +117,7 @@
 	 \newcommand{\version}{}}
 \newcommand{\rev}[2]{\nb{Reviewer #1}{red}{#2}}
 \newcommand{\ab}[1]{\nb{Alexandre}{blue}{#1}}
-\newcommand{\vp}[1]{\nb{Vanessa}{orange}{#1}}
+\newcommand{\sd}[1]{\nb{SD}{orange}{#1}}
 
 % graphics: \fig{position}{percentage-width}{filename}{caption}
 \DeclareGraphicsExtensions{.png,.jpg,.pdf,.eps,.gif}
@@ -168,6 +169,10 @@
 
 
 \begin{abstract}
+
+\sd{what is the goal of the paper?
+For me software quality is vague and we could just gets killed for that.
+You can quality model....}
 \end{abstract}
 
 % What is the problem?
@@ -181,22 +186,27 @@
 % What is the problem?
 %Contrary to building and ships construction, software engineering is a very young field. Software may be one of the less reliable artifact that the mankind has produced. 
 Large software cannot realistically be produced without experiencing unforeseen failures.
-This has been empirically verified by Sommerville~\cite{Somm00a} and Davis~\cite{Davi95a} who estimate that the cost of software maintenance accounts for 50\% to 75\% of the overall cost of a software system. Moreover, Corbi~\cite{Corb89a} reported that during maintenance, professionals spend at least half of their time analyzing software to understand it. 
+This has been empirically verified\sd{reported - because I do not think sommerville did anything} by Sommerville~\cite{Somm00a} and Davis~\cite{Davi95a} who estimate that the cost of software maintenance accounts for 50\% to 75\% of the overall cost of a software system. Moreover, Corbi~\cite{Corb89a} reported that during maintenance, professionals spend at least half of their time analyzing software to understand it. 
 
 % Why is the problem a problem?
 
 
 % What's the surprising Idea?
-We believe that one of the reasons for this dramatic situation is the tools that we commonly use to build software. Most of them absolutely lack adequate abstraction to represent program structure and execution, keys to understand all the implications associated to a software. For example, source code is still considered as the universal medium from which static properties can be extracted from and runtime stack frame evolution remains the uncontested oracle for finding execution bottleneck. Unfortunately, this has not changed during the last few decades.
+We believe that one of the reasons for this dramatic situation is the tools that we commonly use to build software. Most of them absolutely lack adequate abstraction to represent program structure and execution, keys to understand all the implications associated to a software. For example, source code is still considered as the universal medium from which static properties can be extracted from and runtime stack frame evolution remains the uncontested oracle for finding execution bottleneck \sd{do you really mean that existing tools on runtime analysis do not exist?
+reis, wim de pauw???}. Unfortunately, this has not changed during the last few decades.
 
 % What's the consequence?
 We are involved in the development of several applications. We have constantly been assessing until how far standard development tools help us to solve the problems we were facing. 
 
 This article relates our experience when developing Mondrian, an application large of 180 classes and 2,000 methods, itself written in the Pharo programming language\footnote{\url{http://www.pharo-project.org}}. We present four problems in which the standard Pharo development tools fail to adequately solve. This article presents four expressive high-level visual representations and relates the experience we have gained. Visualizing software has proved successful in solving problems that could not be easily addressed without.
 
-Mondrian uses a fine grain version numbering schema: it comprises more than 500 successive different versions. This article is illustrated with a description of 11 versions of Mondrian.
+Mondrian uses a fine grain \sd{grained?} version numbering schema: it comprises more than 500 successive different versions. This article is illustrated with a description of 11 versions of Mondrian.
 
-The article is outline as follows.
+\sd{what is the claim? how relevant is the story behind mondrian? what make you believe that it can be generalized?
+200 classes is nothing in terms of size?}
+\sd{what is the message to IEEE Software: idea: In this article we present based on anedoctal evidences that simple visualizations can drastically improve the performance of actions related to the general notion of software quality (speed, coverage...)}
+
+The article is outlined as follows.
 \secref{profilingblueprint} describes \emph{profiling behavioral blueprint}. It shows how Mondrian has gained a speedup of 43\% between Version 1.341 and Version 1.352.
 \secref{testblueprint} describes \emph{test blueprint}. The test coverage of an essential class hierarchy has increased by more than 20\% between Version 2.2 and Version 2.7.
 \secref{documentationblueprint} presents the \emph{documentation blueprint}. The amount of documented methods increased by 9\% between Version 2.70 and Version 2.78. 
@@ -228,6 +238,7 @@ This report was produced when we were facing a severe performance issue. The rep
 \fig{}{1.0}{ProfilingBlueprint}{Profiling behavioral blueprint}
 %\myparagraph{Solution}
 Indicating candidates for time execution improvement is the goal of \emph{profiling behavioral blueprint}~\cite{Berg10c}, a visual representation of CPU consumption (\figref{ProfilingBlueprint}). Elements are visually represented by contrasting execution metrics with the presence of side-effects.
+\sd{put a ref to polymetric views.}
 
 The visualization assesses runtime information alongside method call invocations. In addition to the metrics such as the number of executions and execution time, we also show if a given method returns constant values, and whether or not it performs a detectable side effect on the object receiver. In our setting, this information is helpful to identify a class of bottlenecks related to computation redundancy.
 
@@ -444,7 +455,8 @@ Version 2.89 is the result of a re-architectural effort. The number of bad depen
 As an example of a bad dependency, consider the method:
 
 \begin{lstlisting}
-MONode>>acceptVisitor: aVisitor	^ aVisitor visitNode: self
+MONode>>acceptVisitor: aVisitor
+	^ aVisitor visitNode: self
 \end{lstlisting}
 
 The class \ct{MONode} belongs to the \ct{Mondrian-Core} package. Visitors are packaged into \ct{Mondrian-Visitor}. By being defined in \ct{Mondrian-Core}, the method \ct{acceptVisitor:} creates a dependency toward \ct{Mondrian-Visitor} since it invokes \ct{visitNode:}, itself defined on the class \ct{MOVisitor}, which belongs to \ct{Mondrian-Visitor}. 
