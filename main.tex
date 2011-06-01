@@ -19,7 +19,7 @@
 
 % constants
 %\newcommand{\Title}{On Visualization and Software Quality}
-\newcommand{\Title}{A Case for Visualization for Software Quality}
+\newcommand{\Title}{Contextual Tools: A Case for Visualization}
 \newcommand{\TitleShort}{\Title}
 \newcommand{\Authors}{Alexandre Bergel, St\'ephane Ducasse, Tudor G\^irba}
 \newcommand{\AuthorsShort}{A. Bergel}
@@ -222,6 +222,19 @@ The article is outlined as follows.
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 
+\section{Challenges of Tools}
+
+\begin{itemize}
+	\item plethora of tools. We are lost, often we have to adapt to the tool
+	\item pragmatic/contextual. tools should solve one point
+	\item Simple
+\end{itemize}
+
+our solution: provide a powerful but simple to use generic engine to build adequate simple visualization.
+
+We show it on range of significant activities around software lifecycle. We take Mondrian itself as a case. 
+
+
 \section{Profiling Behavioral Blueprint}\seclabel{profilingblueprint}
 
 In an object-oriented setting, computation is essentially performed by sending messages. The CPU time consumption is distributed along successive inter-object interactions. Removing an execution bottleneck is commonly achieved with two heuristics: (i) reducing the number of times a slow method is executed and (ii) making a slow method faster.
@@ -405,7 +418,7 @@ The importance of assessing and increasing code test coverage has been recognize
 Software documentation is commonly understood as any material support that describes software attributes. Documenting a software is a critical factor of success when developing a software product~\cite{Paul03a}. 
 Mondrian comes with a reasonable set of documents, including book chapters, tutorials, research papers and mailing list archives. However, these documents are essentially for end users since they do not describe the internal of the software. Technical discussions were realized via emails, however they lack organization and cannot really be considered as an internal documentation. 
 
-Mondrian is a large \sd{no small} application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users.
+Mondrian is a large \sd{no small} application which has a poorly documented source code. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users. \sd{People like jm jezequel talk about multimillion line programs}. \sd{We do not care about the size of mondrian. What would be much much much better is ok the size of the script: with a correct engine you can get in 15 lines of code }
 
 Pharo does not come with a tool dedicate to comfortably write and browse code documentation. Using the standard tool to write code is the only way to read and write documentation as comment in the source code. The limitation of this way to document application code is the lack of global context. Not all methods have the same urgent necessity to be documented. Tools for code production cannot be effective used for code documentation: no indication is given on whether a method has to be documented in priority. 
 
@@ -414,7 +427,7 @@ The \emph{documentation blueprint} aims at guiding the commenting effort. The he
 We have designed the documentation blueprint along this heuristic. A method's collaborations is the classes for which the method has sent at least one message toward an instance of the classes. Collaborations are extracted from profiling the test execution.
 The left-hand side of \figref{DocumentationBlueprintEvolution} shows the shape hierarchy before our effort. Comments were almost completely absent.
 
-We have undertaken a significant effort to document Mondrian. Version 2.78 contains 1,972 methods with 482 commented methods (24\%). The right-hand side of \figref{DocumentationBlueprintEvolution} gives the blueprint for this version of the hierarchy.
+We have undertaken a significant effort to document Mondrian. Version 2.78 contains 1,972 methods with 482 commented methods (24\%). The right-hand side of \figref{DocumentationBlueprintEvolution} gives the blueprint for this version of the hierarchy. \sd{we do not care about the effort}
 
 
 %\begin{table}
@@ -461,7 +474,7 @@ The right-hand side of the compound are the dependent packages. A dependent pack
 
 The above part of \figref{DependencyBlueprint} shows the dependency blueprint for Version 2.80. It contains 132 dependencies in total, 110 of them are bad dependencies, meaning that they are not specified in the architectural description of Mondrian.  22 are good dependencies. Version 2.80 of Mondrian contains 22 packages. In the average, each package has 6 bad dependencies. 
 
-Version 2.89 is the result of a re-architectural effort. The number of bad dependencies has been reduced to 46. The number of good dependencies increased to 26. Version 2.89 contains 21 packages.  In the average, each package has 2.1 bad dependencies.
+Version 2.89 is the result of a re-architectural effort. The number of bad dependencies has been reduced to 46. The number of good dependencies increased to 26. Version 2.89 contains 21 packages.  In the average, each package has 2.1 bad dependencies. \sd{encore une fois pareille. We do not care about that.}
 
 As an example of a bad dependency, consider the method:
 
@@ -474,20 +487,20 @@ The class \ct{MONode} belongs to the \ct{Mondrian-Core} package. Visitors are pa
 
 Two different ways exists to remove this dependency. The class \ct{MOVisitor} can be simply moved into the core. Another solution is to use a particularity of Smalltalk. Pharo offers a element solution called a class extension. The method \ct{acceptVisitor:} is defined on the class \ct{MONode}, but it can be contained in the package \ct{Mondrian-Visitor}: \ct{acceptVisitor:} is an extension of of \ct{Mondrian-Visitor} made on \ct{Mondrian-Core}. We opted to that solution to remove the bad dependency.
 
-The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89.
+The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89. \sd{same here... we do not really care -- it can be a good anecdcote but no more than that.}
 
 \largefig{}{1.23}{DependencyBlueprint}{Evolution of Mondrian dependencies.}
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Retrospective and Lesson Learnt} \seclabel{lessonLearnt}
 
-\fig{}{0.9}{Retrospective}{Number of added and open issues.}
+%\fig{}{0.9}{Retrospective}{Number of added and open issues. \sd{do not care}}
 
 %Mondrian is an application on which several industrial and research projects are based on. 
 Issues found in Mondrian are tracked on a Google code website\footnote{\url{http://code.google.com/p/moose-technology/}}: each entry contains a summary of the issue, the date the issue when it was opened and closed.
 \figref{Retrospective} shows the number of added new issues (a) and the number of open issues (b).  
 
-It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place.
+It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place. \sd{remove the two precedent paragraphs}
 
 Textual and visual representations differ in effectiveness~\cite{Petr95a}. 
 Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Understanding a program structure or execution requires to associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
@@ -537,7 +550,9 @@ We have identified a number of usability requirements for the visualization and 
 
 \section{Conclusion} \seclabel{conclusion}
 
-This article presents the major steps we went through at increasing the quality of Mondrian, a software large of more than 180 classes and 2,000 methods. We applied techniques of visualization to identify anomalies and monitor their removal. 
+%This article presents the major steps we went through at increasing the quality of Mondrian, a software large of more than 180 classes and 2,000 methods.
+
+We applied techniques of visualization to identify anomalies and monitor their removal. 
 The need for visualizations emerged from the limitation of current development tools. 
 Mondrian has become a stable software, in which features are continually added, while keeping the number of unresolved issues low.
 
