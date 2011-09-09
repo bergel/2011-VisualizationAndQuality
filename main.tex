@@ -39,8 +39,8 @@
 %\newcommand{\Title}{On Visualization and Software Quality}
 \newcommand{\Title}{Contextual Tools: A Case for Visualization}
 \newcommand{\TitleShort}{\Title}
-\newcommand{\Authors}{Alexandre Bergel, St\'ephane Ducasse, Tudor G\^irba}
-\newcommand{\AuthorsShort}{A. Bergel}
+\newcommand{\Authors}{Alexandre Bergel, St\'ephane Ducasse, Tudor G\^irba, Vanessa Pe\~na}
+\newcommand{\AuthorsShort}{A. Bergel, S. Ducasse, T. G\^irba, V. Pe\~na}
 
 % references
 \usepackage[colorlinks]{hyperref}
@@ -422,23 +422,28 @@ Java offers javadoc as a source code processor to extract and gather annotated c
 
 Consider the case of Mondrian. Mondrian has a poorly documented source code: only 15\% of nearly 2 000 methods are commented. Prioritizing classes and methods for receiving comments is necessary to effective drive the documentation effort. Not all methods have the same pressing necessity to be documented. Tools for code production cannot be effective used for code documentation: no indication is given on whether a method has to be documented in priority. \\
 
-\ab{@@here}
-
-
 %. Version 2.70 of Mondrian contains 1,966 methods for which only 296 are commented (15\%). One immediate problem we faced when commenting source code, is to find what are the most relevant methods to comment first. Not all of these nearly 2,000 methods have the same relevance for a users. \sd{People like jm jezequel talk about multimillion line programs}. \sd{We do not care about the size of mondrian. What would be much much much better is ok the size of the script: with a correct engine you can get in 15 lines of code }
 
 %Pharo does not come with a tool dedicate to comfortably write and browse code documentation. Using the standard tool to write code is the only way to read and write documentation as comment in the source code. The limitation of this way to document application code is the lack of global context. 
 
 \myparagraph{Documentation blueprint}
-If a method is complex and intensively used it is reasonable to properly comment it. We use this hypothesis as heuristic to guide our documentation effort. The \emph{documentation blueprint} uses a polymetric views to visually assess the necessity for documentation based on the complexity and the existing collaboration of methods.
+If a method is complex and intensively used it is reasonable to properly comment it. We use this hypothesis as heuristic to guide our documentation effort. The \emph{documentation blueprint} uses a polymetric views to prioritize the documentation effort based on the complexity and the existing collaboration of methods.
 
-%aims at guiding the commenting effort. The heuristic explored in this visualization is: if a method has a complex definition and is collaborating with many classes then it is a good candidate for being documenting in priority.
+A method's collaborations is the classes for which the method sends at least one message toward an instance of the classes. Collaborations are extracted from profiling the program execution.
 
-We have designed the documentation blueprint along this heuristic. A method's collaborations is the classes for which the method has sent at least one message toward an instance of the classes. Collaborations are extracted from profiling the test execution.
+The documentation blueprint is defined as follows:
+\begin{itemize}
+\item Large box represents classes and edges are the inheritance relationships. A supper class is above its subclasses.
+\item Inner boxes are methods. A documented method is painted in gray, otherwise red is used.
+\item The height of a method is proportional to its cyclomatic complexity; its width is proportional to the amount of collaborating classes the method has.
+\item Methods filled with white are private. They are located on the left-hand side in a class. Methods filled with gray are private and are located on the right hand side of the class.
+\end{itemize}
 
-The left-hand side of \figref{DocumentationBlueprintEvolution} shows the shape hierarchy before our effort. Comments were almost completely absent.
+The upper part of \figref{DocumentationBlueprintEvolution} reflects the large absence of Mondrian code documentation. Many public methods are complex or have many collaborating classes. These methods have to be the primary target of the documentation effort since their source code is unlikely to be self-explainable and they are significantly involved in the overall computation. \\
 
-We have undertaken a significant effort to document Mondrian. Version 2.78 contains 1,972 methods with 482 commented methods (24\%). The right-hand side of \figref{DocumentationBlueprintEvolution} gives the blueprint for this version of the hierarchy. \sd{we do not care about the effort}
+
+%
+%We have undertaken a significant effort to document Mondrian. Version 2.78 contains 1,972 methods with 482 commented methods (24\%). The right-hand side of \figref{DocumentationBlueprintEvolution} gives the blueprint for this version of the hierarchy. \sd{we do not care about the effort}
 
 
 %\begin{table}
@@ -468,51 +473,64 @@ We have undertaken a significant effort to document Mondrian. Version 2.78 conta
 
 \largefig{}{1.0}{DocumentationBlueprintEvolution}{Documentation of the \ct{MOShape} class hierarchy.}
 
+\myparagraph{Lesson learnt}
+Pharo does not offer a dedicated tool to comfortably write and browse code documentation. The standard software development tools that one use to write code are not adequate to document source code. 
+
+Making source code functional is an activity that essentially involve a local context. Writing code is an activity fundamentally different from documenting code. Documentation blueprint abstracts away instructions contained in source code by focussing on what makes source code worth and valuable to document.
+
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Reducing component dependencies}\seclabel{dependencyblueprint}
 %Dependency Blueprint
 
-Mondrian is composed of more than 20 packages. Each of these packages contains cohesive classes and depends on other packages. For example, layout classes are defined in a dedicated package, itself depending on Mondrian core; packages containing the tests depends on all the packages that are effectively tested. Unfortunately, unwanted dependencies are difficult to clearly visualize.
-Dependencies are traditionally represented as a graph in which nodes are components and arrowed lines indicates dependencies\footnote{\eg \url{http://www.eclipse.org/pde/incubator/dependency-visualization}}. The problem with such a representation is its poor scalability. Over a few dozen edges it quickly gets the appearance of a home-made spaghetti dish~\cite{Tele10a}. 
+The structure of a software program is best described in terms of software components and the relationships between them. Identifying the structure and imbrication of software packages is often difficult to identify and verify against program code.\\
 
+\myparagraph{Where the pain is}
+All software development begins with a lean and clean separation of software entities. However, design rules that drives an architecture are fragile. A single method may introduce a dependency between packages that may invalidate the overall structure invariant. 
+
+Mondrian comprises more than 20 packages, each of them supposed to depend on a limited amount of packages. Mondrian architecture is unfortunately only documented in textual documents, which cannot be easily assessed against the actual source code. To fix a reported bug in Mondrian often involve touching parts that were supposedly be independent from the behavior associated to the bug. This reveals a lack of a clear delimitation between package.\\
+
+\myparagraph{Dependency blueprint}
 \emph{Dependency blueprint} is a visual representations of dependencies between software packages (\figref{DependencyBlueprint}). Each package is visually represented as a compound of 3 parts. Consider a compound representing a package $P$. The left-hand side of the compound contains the packages that depends on $P$. For example, the packages $A$ and $B$ contain at least one class, itself containing one or more methods that reference a class or a method contained in $P$. The fact that Package $B$ depends on $P$ is confirm to the architecture specification of the considered application (not discussed here). The dependency $B$ to $P$ is not specified as indicated with the red color. This bad dependency is an anomaly.
 
 The center part of the compound is the package itself, represented as the result of 3 metrics: the number of depending classes (height); the number of dependent classes (width); the number of classes contained in the package (gray intensity). 
 
 The right-hand side of the compound are the dependent packages. A dependent package that is not expected from the Mondrian architectural description is marked as red. The Package $P$ contains at least one method that refer a method or a class contained in C.
 
+The figure indicates packages that depend on a large amount of unwanted packages. Consider \ct{Mondrian-Core} which belongs to the lowest architectural layer of Mondrian. Whereas it is acceptable to have packages that depend on \ct{Mondrian-Core}, this package must not depend on other packages of the application. The presence of red packages used by \ct{Mondrian-Core} reveals anomalies in the structure of Mondrian.
+
+\myparagraph{Lesson learnt}
+Difficulty to keep track of dependencies, especially written in a dynamic typed languages. Since no type are declared, no import have to be specified. Fixing package dependencies is an expensive activity that may involve large and costly software refactoring.  Dependency blueprint indicates what are the most pressing unwanted dependencies to remove.
+
+%%%%%%%
+
+%Mondrian is composed of more than 20 packages. Each of these packages contains cohesive classes and depends on other packages. For example, layout classes are defined in a dedicated package, itself depending on Mondrian core; packages containing the tests depends on all the packages that are effectively tested. Unfortunately, unwanted dependencies are difficult to clearly visualize.
+%Dependencies are traditionally represented as a graph in which nodes are components and arrowed lines indicates dependencies\footnote{\eg \url{http://www.eclipse.org/pde/incubator/dependency-visualization}}. The problem with such a representation is its poor scalability. Over a few dozen edges it quickly gets the appearance of a home-made spaghetti dish~\cite{Tele10a}. 
+
+
 %110 wrong dependencies in Version 2.80. 22 good only
 % 46 wrong dependencies in Version 2.89. 26 good only
 
-The above part of \figref{DependencyBlueprint} shows the dependency blueprint for Version 2.80. It contains 132 dependencies in total, 110 of them are bad dependencies, meaning that they are not specified in the architectural description of Mondrian.  22 are good dependencies. Version 2.80 of Mondrian contains 22 packages. In the average, each package has 6 bad dependencies. 
-
-Version 2.89 is the result of a re-architectural effort. The number of bad dependencies has been reduced to 46. The number of good dependencies increased to 26. Version 2.89 contains 21 packages.  In the average, each package has 2.1 bad dependencies. \sd{encore une fois pareille. We do not care about that.}
-
-As an example of a bad dependency, consider the method:
-
-\begin{lstlisting}
-MONode>>acceptVisitor: aVisitor
-	^ aVisitor visitNode: self
-\end{lstlisting}
-
-The class \ct{MONode} belongs to the \ct{Mondrian-Core} package. Visitors are packaged into \ct{Mondrian-Visitor}. By being defined in \ct{Mondrian-Core}, the method \ct{acceptVisitor:} creates a dependency toward \ct{Mondrian-Visitor} since it invokes \ct{visitNode:}, itself defined on the class \ct{MOVisitor}, which belongs to \ct{Mondrian-Visitor}. 
-
-Two different ways exists to remove this dependency. The class \ct{MOVisitor} can be simply moved into the core. Another solution is to use a particularity of Smalltalk. Pharo offers a element solution called a class extension. The method \ct{acceptVisitor:} is defined on the class \ct{MONode}, but it can be contained in the package \ct{Mondrian-Visitor}: \ct{acceptVisitor:} is an extension of of \ct{Mondrian-Visitor} made on \ct{Mondrian-Core}. We opted to that solution to remove the bad dependency.
-
-The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89. \sd{same here... we do not really care -- it can be a good anecdcote but no more than that.}
+%The above part of \figref{DependencyBlueprint} shows the dependency blueprint for Version 2.80. It contains 132 dependencies in total, 110 of them are bad dependencies, meaning that they are not specified in the architectural description of Mondrian.  22 are good dependencies. Version 2.80 of Mondrian contains 22 packages. In the average, each package has 6 bad dependencies. 
+%
+%Version 2.89 is the result of a re-architectural effort. The number of bad dependencies has been reduced to 46. The number of good dependencies increased to 26. Version 2.89 contains 21 packages.  In the average, each package has 2.1 bad dependencies. \sd{encore une fois pareille. We do not care about that.}
+%
+%As an example of a bad dependency, consider the method:
+%
+%\begin{lstlisting}
+%MONode>>acceptVisitor: aVisitor
+%	^ aVisitor visitNode: self
+%\end{lstlisting}
+%
+%The class \ct{MONode} belongs to the \ct{Mondrian-Core} package. Visitors are packaged into \ct{Mondrian-Visitor}. By being defined in \ct{Mondrian-Core}, the method \ct{acceptVisitor:} creates a dependency toward \ct{Mondrian-Visitor} since it invokes \ct{visitNode:}, itself defined on the class \ct{MOVisitor}, which belongs to \ct{Mondrian-Visitor}. 
+%
+%Two different ways exists to remove this dependency. The class \ct{MOVisitor} can be simply moved into the core. Another solution is to use a particularity of Smalltalk. Pharo offers a element solution called a class extension. The method \ct{acceptVisitor:} is defined on the class \ct{MONode}, but it can be contained in the package \ct{Mondrian-Visitor}: \ct{acceptVisitor:} is an extension of of \ct{Mondrian-Visitor} made on \ct{Mondrian-Core}. We opted to that solution to remove the bad dependency.
+%
+%The proportion of bad dependencies per package has been reduced by 65\% between Versions 2.80 and 2.89. \sd{same here... we do not really care -- it can be a good anecdcote but no more than that.}
 
 \largefig{}{1.23}{DependencyBlueprint}{Evolution of Mondrian dependencies.}
 
 %: % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % % %
 \section{Retrospective and Lesson Learnt} \seclabel{lessonLearnt}
-
-%\fig{}{0.9}{Retrospective}{Number of added and open issues. \sd{do not care}}
-
-%Mondrian is an application on which several industrial and research projects are based on. 
-Issues found in Mondrian are tracked on a Google code website\footnote{\url{http://code.google.com/p/moose-technology/}}: each entry contains a summary of the issue, the date the issue when it was opened and closed.
-\figref{Retrospective} shows the number of added new issues (a) and the number of open issues (b).  
-
-It is difficult to establish the impact on the number of open issues and our effort in increasing the quality of Mondrian. However, in December 2009 the number of added new issues reached a pick and the number of open issues picked in June 2010. Since then, the number of open issues decreased to reach its lowest level since the tracking of issues and bugs was put in place. \sd{remove the two precedent paragraphs}
 
 Textual and visual representations differ in effectiveness~\cite{Petr95a}. 
 Prioritizing and making sense of a large amount of information in a quick and efficient manner is difficult via a textual table. Understanding a program structure or execution requires to associate software elements (\eg classes, methods) with component relations (\eg inheritance, method invocations) and software metrics (\eg number of different object receivers, number of invocations, complexity). 
